@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+	</head>
+	<script>
+		const inputOnChange = () => {
+			const input = document.querySelector("input");
+			const elo = parseInt(input.value);
+			const tbody = document.querySelector("tbody");
+			tbody.innerHTML = "";
+			for (let i = Math.ceil((elo + 1) / 100) * 100; i < 3000; i += 100) {
+				const row = document.createElement("tr");
+				const td = document.createElement("td");
+				td.innerText = i;
+				row.appendChild(td);
+				const td2 = document.createElement("td");
+				const oddsA = 1 / (1 + Math.pow(10, (i - elo) / 400));
+				const oddsB = 1 / (1 + Math.pow(10, (elo - i) / 400));
+				const x = Math.round(oddsB / oddsA);
+				td2.innerText = `I want to become ${x} times stronger`;
+				row.appendChild(td2);
+				const td3 = document.createElement("td");
+				td3.innerText =
+					{
+						2300: "Minimum requirement for FM",
+						2400: "Minimum requirement for IM",
+						2500: "Minimum requirement for GM",
+					}[i] ?? "";
+				row.appendChild(td3);
+				tbody.appendChild(row);
+			}
+		};
+		window.addEventListener("DOMContentLoaded", inputOnChange);
+	</script>
+	<style>
+		table {
+			border-collapse: collapse;
+			width: 100%;
+			table-layout: fixed;
+		}
+		td,
+		th {
+			border: 1px solid rgb(188, 188, 188);
+			padding: 5px;
+			text-align: center;
+		}
+		th:not(:first-child),
+		td:not(:first-child) {
+			text-align: left;
+		}
+		th:nth-child(2),
+		td:nth-child(2) {
+			width: 50%;
+		}
+		th:nth-child(3),
+		td:nth-child(3) {
+			font-style: italic;
+			width: 30%;
+		}
+		tbody tr:nth-child(even) {
+			background-color: rgb(245, 245, 245);
+		}
+		tbody td {
+			white-space: nowrap;
+		}
+		input {
+			width: 60px;
+			border-top: none;
+			border-left: none;
+			border-right: none;
+			text-align: center;
+		}
+		input:focus {
+			outline: none;
+		}
+	</style>
+	<body>
+		<table>
+			<thead>
+				<tr>
+					<th>
+						I'm Elo
+						<input
+							type="number"
+							value="1200"
+							onchange="inputOnChange()"
+						/>
+						and I want to reach...
+					</th>
+					<th>What it means</th>
+					<th>Notes</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>1</td>
+					<td>1</td>
+					<td>1</td>
+				</tr>
+				<tr>
+					<td>1</td>
+					<td>1</td>
+					<td>1</td>
+				</tr>
+			</tbody>
+		</table>
+	</body>
+</html>
