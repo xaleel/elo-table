@@ -7,10 +7,11 @@
 	</head>
 	<script>
 		const inputOnChange = () => {
-			const input = document.querySelector("input");
+			const input = document.getElementById("mainInput");
 			const elo = parseInt(input.value);
 			const tbody = document.querySelector("tbody");
 			tbody.innerHTML = "";
+			tbody.appendChild(getCustomRow());
 			for (let i = Math.ceil((elo + 1) / 100) * 100; i < 3000; i += 100) {
 				const row = document.createElement("tr");
 				const td = document.createElement("td");
@@ -31,6 +32,45 @@
 					}[i] ?? "";
 				row.appendChild(td3);
 				tbody.appendChild(row);
+			}
+		};
+		const getCustomRow = () => {
+			const row = document.createElement("tr");
+			const td = document.createElement("td");
+			const input = document.createElement("input");
+			input.type = "number";
+			input.id = "custom";
+			input.placeholder = "Custom";
+			input.addEventListener("change", customOnChange);
+			td.appendChild(input);
+			const td2 = document.createElement("td");
+			td2.innerText = "I want to become...";
+			const td3 = document.createElement("td");
+			row.appendChild(td);
+			row.appendChild(td2);
+			row.appendChild(td3);
+			return row;
+		};
+		const customOnChange = () => {
+			const cInput = document.getElementById("custom");
+			const i = parseInt(cInput.value);
+			const eloInput = document.getElementById("mainInput");
+			const elo = parseInt(eloInput.value);
+			const td = cInput.parentElement.parentElement.children[1];
+			if (i === elo) {
+				td.innerText = `You're there`;
+				return;
+			}
+			if (i > elo) {
+				const oddsA = 1 / (1 + Math.pow(10, (i - elo) / 400));
+				const oddsB = 1 / (1 + Math.pow(10, (elo - i) / 400));
+				const x = Math.round(oddsB / oddsA);
+				td.innerText = `I want to become ${x} times stronger`;
+			} else {
+				const oddsA = 1 / (1 + Math.pow(10, (elo - i) / 400));
+				const oddsB = 1 / (1 + Math.pow(10, (i - elo) / 400));
+				const x = Math.round(oddsB / oddsA);
+				td.innerText = `I want to become ${x} times weaker?`;
 			}
 		};
 		window.addEventListener("DOMContentLoaded", inputOnChange);
@@ -87,6 +127,7 @@
 							type="number"
 							value="1200"
 							onchange="inputOnChange()"
+							id="mainInput"
 						/>
 						and I want to reach...
 					</th>
@@ -94,18 +135,7 @@
 					<th>Notes</th>
 				</tr>
 			</thead>
-			<tbody>
-				<tr>
-					<td>1</td>
-					<td>1</td>
-					<td>1</td>
-				</tr>
-				<tr>
-					<td>1</td>
-					<td>1</td>
-					<td>1</td>
-				</tr>
-			</tbody>
+			<tbody></tbody>
 		</table>
 	</body>
 </html>
