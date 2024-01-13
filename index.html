@@ -6,6 +6,43 @@
 		<title>Document</title>
 	</head>
 	<script>
+		const Ex = (EA, EB) => {
+			return 1 / (1 + Math.pow(10, (EB - EA) / 400));
+		};
+		const p1 = (EA, EB) => {
+			const delta = EA - EB;
+			const avg = (EA + EB) / 2;
+			return (
+				1 /
+				(1 +
+					Math.pow(Math.E, 0.0198 - 0.00687 * delta + 0.000421 * avg))
+			);
+		};
+		const p2 = (EA, EB) => {
+			return Math.max(
+				0,
+				2 * ((Ex(EA, EB) - p1(EA, EB)) / (1 - p1(EA, EB)))
+			);
+		};
+
+		const getText = (eloA, eloB) => {
+			const x = Math.round(Ex(eloB, eloA) / Ex(eloA, eloB));
+			const w = Math.round(p1(eloA, eloB) * 100);
+			const d = Math.round(p2(eloA, eloB) * 100);
+			return `
+				<span class="str">I want to become <span class="gr">${x}</span> times stronger</span>
+				<span class="win">Chances of W/D/L is <span class="gr">${
+					w || "<1"
+				}%</span> / <span class="or">${
+				d || "<1"
+			}%</span> / <span class="rd">${(!(w + d) && "~") || ""}${
+				100 - w - d
+			}%</span></span>
+				<span class="scr">In a 100-game match, I expect to have <span class="gr">${
+					w + d * 0.5
+				}</span> points</span>
+			`;
+		};
 		const inputOnChange = () => {
 			const input = document.getElementById("mainInput");
 			const elo = parseInt(input.value);
@@ -18,10 +55,7 @@
 				td.innerText = i;
 				row.appendChild(td);
 				const td2 = document.createElement("td");
-				const oddsA = 1 / (1 + Math.pow(10, (i - elo) / 400));
-				const oddsB = 1 / (1 + Math.pow(10, (elo - i) / 400));
-				const x = Math.round(oddsB / oddsA);
-				td2.innerText = `I want to become ${x} times stronger`;
+				td2.innerHTML = getText(elo, i);
 				row.appendChild(td2);
 				const td3 = document.createElement("td");
 				td3.innerText =
@@ -57,21 +91,11 @@
 			const eloInput = document.getElementById("mainInput");
 			const elo = parseInt(eloInput.value);
 			const td = cInput.parentElement.parentElement.children[1];
-			if (i === elo) {
-				td.innerText = `You're there`;
-				return;
-			}
-			if (i > elo) {
-				const oddsA = 1 / (1 + Math.pow(10, (i - elo) / 400));
-				const oddsB = 1 / (1 + Math.pow(10, (elo - i) / 400));
-				const x = Math.round(oddsB / oddsA);
-				td.innerText = `I want to become ${x} times stronger`;
-			} else {
-				const oddsA = 1 / (1 + Math.pow(10, (elo - i) / 400));
-				const oddsB = 1 / (1 + Math.pow(10, (i - elo) / 400));
-				const x = Math.round(oddsB / oddsA);
-				td.innerText = `I want to become ${x} times weaker?`;
-			}
+			td.innerHTML = getText(elo, i);
+		};
+		const selectOnChange = (el) => {
+			const table = document.querySelector("table");
+			table.dataset.showing = el.value;
 		};
 		window.addEventListener("DOMContentLoaded", inputOnChange);
 	</script>
@@ -103,9 +127,6 @@
 		tbody tr:nth-child(even) {
 			background-color: rgb(245, 245, 245);
 		}
-		tbody td {
-			white-space: nowrap;
-		}
 		input {
 			width: 60px;
 			border-top: none;
@@ -116,9 +137,51 @@
 		input:focus {
 			outline: none;
 		}
+		@media screen and (max-width: 600px) {
+			th:nth-child(3),
+			td:nth-child(3) {
+				display: none;
+			}
+		}
+		.str,
+		.win,
+		.scr {
+			display: none;
+		}
+		[data-showing="1"] .str {
+			display: inline;
+		}
+		[data-showing="2"] .win {
+			display: inline;
+		}
+		[data-showing="3"] .scr {
+			display: inline;
+		}
+		.gr,
+		.or,
+		.rd {
+			font-weight: bold;
+		}
+		.gr {
+			color: #247824;
+		}
+		.or {
+			color: #b45f06;
+		}
+		.rd {
+			color: #ab0000;
+		}
 	</style>
 	<body>
-		<table>
+		<div style="display: flex; gap: 12px; margin-bottom: 12px">
+			<span>Show:</span>
+			<select style="width: 150px" onchange="selectOnChange(this)">
+				<option value="1" selected>X stronger</option>
+				<option value="2">Chance of W/D</option>
+				<option value="3">Score in 100 games</option>
+			</select>
+		</div>
+		<table data-showing="1">
 			<thead>
 				<tr>
 					<th>
@@ -137,5 +200,11 @@
 			</thead>
 			<tbody></tbody>
 		</table>
+		<p style="width: 100%; text-align: center">
+			Calculations based on
+			<a href="https://www.gilgamath.com/elo-ties" target="_blank"
+				>this amazing article</a
+			>
+		</p>
 	</body>
 </html>
